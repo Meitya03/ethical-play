@@ -8,7 +8,10 @@ import img1 from '../../assets/1.jpg';
 import img2 from '../../assets/2.jpg';
 import img3 from '../../assets/3.jpg';
 import img4 from '../../assets/4.jpg';
+import img5 from '../../assets/5.jpg';
 import './Home.css';
+import DissolveEffect from '../../components/DissolveEffect';
+import '../../components/DissolveEffect.css';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -24,6 +27,11 @@ const Home = () => {
       lenis.raf(time * 1000);
     });
     gsap.ticker.lagSmoothing(0);
+
+    // 确保所有ScrollTrigger正确初始化
+    setTimeout(() => {
+      ScrollTrigger.refresh();
+    }, 100);
 
     // 使用 gsap.utils.toArray 获取所有卡片元素
     const cards = gsap.utils.toArray('.sticky-cards .card') as HTMLDivElement[];
@@ -64,7 +72,7 @@ const Home = () => {
       end: `+=${window.innerHeight * 8}px`,
       pin: true,
       pinSpacing: true,
-      scrub: 0.5,
+      scrub: 0.15,
       onUpdate: (self) => {
         const progress = self.progress;
         const activeIndex = Math.min(Math.floor(progress / segmentSize), totalCards - 1);
@@ -158,10 +166,12 @@ const Home = () => {
 
   return (
     <div className="home-page">
-      <section className="intro">
-      <h1>在技术与伦理交织的时代，每一次工程决策都关乎未来。</h1>
-</section>
-
+      <DissolveEffect
+        imageSrc={img5}
+        title="Ethical Play"
+        description="在技术与伦理交织的时代，每一次工程决策都关乎未来。"
+        contentText="理论认知终需落地实践，真正的工程伦理决策，藏在每一次具体的选择里。通过沉浸式体验，理解工程伦理的核心价值。"
+      />
       
       <section className="sticky-cards" ref={stickyCardsRef}>
         <h2 className="section-title">关于此项目</h2>
