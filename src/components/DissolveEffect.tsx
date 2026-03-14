@@ -145,7 +145,7 @@ const DissolveEffect = ({ imageSrc, title, description, contentText }: DissolveE
     animate();
 
     // 使用ScrollTrigger来监听滚动事件，与Lenis集成
-    const timer = setTimeout(() => {
+    setTimeout(() => {
       ScrollTrigger.create({
         trigger: container,
         start: 'top top',
