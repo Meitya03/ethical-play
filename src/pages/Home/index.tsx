@@ -1,4 +1,5 @@
 import { useLayoutEffect, useRef } from 'react';
+import { Link } from 'react-router-dom';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Lenis from '@studio-freight/lenis';
@@ -232,12 +233,9 @@ const Home = () => {
         <h1>理论认知终需落地实践，真正的工程伦理决策，藏在每一次具体的选择里。
     进入真实案例场景，用你的判断定义技术向善的边界。</h1>
     <div className="buttons">
-      <button className="jump-btn" onClick={() => window.location.href="/case-scene"}>
-        传统案例交互
-      </button>
-      <button className="jump-btn ai-btn" onClick={() => window.location.href="/ethical-case"}>
-        AI 生成案例
-      </button>
+      <Link to="/select-role" className="jump-btn ai-btn">
+        开始AI伦理案例
+      </Link>
     </div>
       </section>
     </div>

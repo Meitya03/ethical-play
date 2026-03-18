@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { fetchCaseAndOptions, fetchResultWithImage, setCozeToken } from '../../api/ai';
 import ProfessionSelect from '../../components/ProfessionSelect';
 import CaseDisplay from '../../components/CaseDisplay';
@@ -7,6 +8,7 @@ import LoadingError from '../../components/LoadingErr';
 import './EthicalCase.css';
 
 function EthicalCase() {
+  const location = useLocation();
   const [profession, setProfession] = useState('');
   const [currentCase, setCurrentCase] = useState(null);
   const [options, setOptions] = useState(null);
@@ -23,6 +25,32 @@ function EthicalCase() {
       console.warn('未设置 Coze Token，请在 .env 文件中定义 VITE_COZE_TOKEN');
     }
   }, []);
+
+  // 检查是否有传递的角色信息
+  useEffect(() => {
+    if (location.state && location.state.profession) {
+      const selectedProfession = location.state.profession;
+      setProfession(selectedProfession);
+      // 直接获取案例和选项
+      const fetchCase = async () => {
+        setLoading(true);
+        setError('');
+        try {
+          const data = await fetchCaseAndOptions(selectedProfession);
+          console.log('API返回的数据:', data);
+          console.log('options类型:', typeof data.options);
+          console.log('options值:', data.options);
+          setCurrentCase(data.case);
+          setOptions(data.options);
+        } catch (err) {
+          setError(err.message || '获取案例失败');
+        } finally {
+          setLoading(false);
+        }
+      };
+      fetchCase();
+    }
+  }, [location.state]);
 
   const handleProfessionSelect = async (selected) => {
     setProfession(selected);
@@ -44,7 +72,7 @@ function EthicalCase() {
 
   const handleOptionSelect = async (optionKey) => {
     if (!profession || !currentCase) return;
-    
+
     setLoading(true);
     setError('');
     try {
