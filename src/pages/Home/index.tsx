@@ -1,8 +1,7 @@
 import { useLayoutEffect, useRef } from 'react';
+import { Link } from 'react-router-dom';
 import gsap from 'gsap';
-// @ts-ignore
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-// @ts-ignore
 import Lenis from '@studio-freight/lenis';
 import img1 from '../../assets/1.jpg';
 import img2 from '../../assets/2.jpg';
@@ -37,10 +36,10 @@ const Home = () => {
     const cards = gsap.utils.toArray('.sticky-cards .card') as HTMLDivElement[];
     const outro = outroRef.current;
     const homePage = document.querySelector('.home-page');
-    
+
     // 确保有卡片
     if (cards.length === 0) return;
-    
+
     const totalCards = cards.length;
     const segmentSize = 1 / totalCards;
 
@@ -172,7 +171,7 @@ const Home = () => {
         description="在技术与伦理交织的时代，每一次工程决策都关乎未来。"
         contentText="理论认知终需落地实践，真正的工程伦理决策，藏在每一次具体的选择里。通过沉浸式体验，理解工程伦理的核心价值。"
       />
-      
+
       <section className="sticky-cards" ref={stickyCardsRef}>
         <h2 className="section-title">关于此项目</h2>
         <div
@@ -233,9 +232,11 @@ const Home = () => {
       <section className="outro" ref={outroRef}>
         <h1>理论认知终需落地实践，真正的工程伦理决策，藏在每一次具体的选择里。
     进入真实案例场景，用你的判断定义技术向善的边界。</h1>
-    <button className="jump-btn" onClick={() => window.location.href="/case-scene"}>
-    进入案例交互
-  </button>
+    <div className="buttons">
+      <Link to="/select-role" className="jump-btn ai-btn">
+        开始AI伦理案例
+      </Link>
+    </div>
       </section>
     </div>
   );

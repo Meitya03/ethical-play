@@ -79,6 +79,23 @@ section {
   line-height: 1.2;
 }
 
+.outro .buttons {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.outro .ai-btn {
+  background-color: #7c3aed; /* 紫色，代表AI和创新 */
+  box-shadow: 0 4px 15px rgba(124, 58, 237, 0.3);
+}
+
+.outro .ai-btn:hover {
+  background-color: #6d28d9;
+  box-shadow: 0 6px 20px rgba(124, 58, 237, 0.4);
+}
+
 .sticky-cards {
   background-color: #edf5df;
   perspective: 850px;
