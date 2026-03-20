@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
-import { fetchCaseAndOptions, fetchResultWithImage, setCozeToken } from '../../api/ai';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { fetchCaseAndOptions, fetchResultWithImage, setCozeTokens } from '../../api/ai';
 import ProfessionSelect from '../../components/ProfessionSelect';
 import CaseDisplay from '../../components/CaseDisplay';
 import ResultDisplay from '../../components/ResultDisplay';
@@ -9,6 +9,7 @@ import './EthicalCase.css';
 
 function EthicalCase() {
   const location = useLocation();
+  const navigate = useNavigate();
   const [profession, setProfession] = useState('');
   const [currentCase, setCurrentCase] = useState(null);
   const [options, setOptions] = useState(null);
@@ -18,11 +19,12 @@ function EthicalCase() {
 
   // 初始化 token（从环境变量读取）
   useEffect(() => {
-    const token = import.meta.env.VITE_COZE_TOKEN;
-    if (token) {
-      setCozeToken(token);
+    const caseToken = import.meta.env.VITE_COZE_CASE_TOKEN;
+    const roleToken = import.meta.env.VITE_COZE_ROLE_TOKEN;
+    if (caseToken && roleToken) {
+      setCozeTokens(caseToken, roleToken);
     } else {
-      console.warn('未设置 Coze Token，请在 .env 文件中定义 VITE_COZE_TOKEN');
+      console.warn('未设置 Coze Token，请在 .env 文件中定义 VITE_COZE_CASE_TOKEN 和 VITE_COZE_ROLE_TOKEN');
     }
   }, []);
 
@@ -94,6 +96,7 @@ function EthicalCase() {
     setOptions(null);
     setResult(null);
     setError('');
+    navigate('/select-role');
   };
 
   return (

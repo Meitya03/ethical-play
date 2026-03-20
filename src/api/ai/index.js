@@ -1,23 +1,24 @@
 import { callCozeWorkflow } from './CozeApi';
 import { WORKFLOW_IDS } from '../constants';
 
-// 这个 token 需要从环境变量或后端获取，这里先作为参数传入
-let cozeToken = '';
+let caseToken = '';
+let roleToken = '';
 
-export function setCozeToken(token) {
-  cozeToken = token;
+export function setCozeTokens(caseTokenValue, roleTokenValue) {
+  caseToken = caseTokenValue;
+  roleToken = roleTokenValue;
 }
 
 export async function fetchCaseAndOptions(profession) {
-  if (!cozeToken) throw new Error('请先设置 Coze Token');
-  return callCozeWorkflow(WORKFLOW_IDS.generateCase, { profession }, cozeToken);
+  if (!caseToken) throw new Error('请先设置 Case Token');
+  return callCozeWorkflow(WORKFLOW_IDS.generateCase, { profession }, caseToken);
 }
 
 export async function fetchResultWithImage(profession, caseDesc, selectedOption) {
-  if (!cozeToken) throw new Error('请先设置 Coze Token');
+  if (!roleToken) throw new Error('请先设置 Role Token');
   return callCozeWorkflow(WORKFLOW_IDS.generateResult, {
     profession,
     case: caseDesc,
     option: selectedOption
-  }, cozeToken);
+  }, roleToken);
 }

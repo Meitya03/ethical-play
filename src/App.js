@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { fetchCaseAndOptions, fetchResultWithImage, setCozeToken } from './api';
+import { fetchCaseAndOptions, fetchResultWithImage, setCozeTokens } from './api';
 import ProfessionSelect from './components/ProfessionSelect';
 import CaseDisplay from './components/CaseDisplay';
 import ResultDisplay from './components/ResultDisplay';
@@ -16,12 +16,12 @@ function App() {
 
   // 初始化 token（建议从环境变量读取）
   useEffect(() => {
-    // 生产环境应通过后端获取，这里仅示例
-    const token = process.env.REACT_APP_COZE_TOKEN;
-    if (token) {
-      setCozeToken(token);
+    const caseToken = import.meta.env.VITE_COZE_CASE_TOKEN;
+    const roleToken = import.meta.env.VITE_COZE_ROLE_TOKEN;
+    if (caseToken && roleToken) {
+      setCozeTokens(caseToken, roleToken);
     } else {
-      console.warn('未设置 Coze Token，请在 .env 文件中定义 REACT_APP_COZE_TOKEN');
+      console.warn('未设置 Coze Token，请在 .env 文件中定义 VITE_COZE_CASE_TOKEN 和 VITE_COZE_ROLE_TOKEN');
     }
   }, []);
 

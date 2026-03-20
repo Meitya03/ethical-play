@@ -2,6 +2,7 @@
 
 const API_URL = "https://grsai.dakka.com.cn/v1/draw/nano-banana";
 const API_KEY = "sk-e1662c33975d4043b31a5fe1065d1f0b";
+const TIMEOUT_MS = 30000; // 30秒超时
 
 /**
  * 生成角色图像
@@ -20,11 +21,20 @@ export async function generateRoleImage(role) {
   };
 
   try {
-    const response = await fetch(API_URL, {
-      method: 'POST',
-      headers: headers,
-      body: JSON.stringify(data)
+    // 创建一个超时Promise
+    const timeoutPromise = new Promise((_, reject) => {
+      setTimeout(() => reject(new Error('请求超时')), TIMEOUT_MS);
     });
+
+    // 竞争fetch和超时
+    const response = await Promise.race([
+      fetch(API_URL, {
+        method: 'POST',
+        headers: headers,
+        body: JSON.stringify(data)
+      }),
+      timeoutPromise
+    ]);
 
     if (!response.ok) {
       throw new Error(`HTTP ${response.status}: ${await response.text()}`);
@@ -34,7 +44,15 @@ export async function generateRoleImage(role) {
     const reader = response.body.getReader();
     const decoder = new TextDecoder();
 
+    // 再次为流式读取设置超时
+    let startTime = Date.now();
+    
     while (true) {
+      // 检查是否超时
+      if (Date.now() - startTime > TIMEOUT_MS) {
+        throw new Error('流式读取超时');
+      }
+
       const { done, value } = await reader.read();
       if (done) break;
 
