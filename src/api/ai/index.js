@@ -1,24 +1,29 @@
-import { callCozeWorkflow } from './CozeApi';
+import { callCozeWorkflow, resumeCozeWorkflow } from './CozeApi';
 import { WORKFLOW_IDS } from '../constants';
 
-let caseToken = '';
-let roleToken = '';
+let multiRoundToken = '';
 
-export function setCozeTokens(caseTokenValue, roleTokenValue) {
-  caseToken = caseTokenValue;
-  roleToken = roleTokenValue;
+export function setCozeTokens(multiRoundTokenValue) {
+  multiRoundToken = multiRoundTokenValue;
 }
 
-export async function fetchCaseAndOptions(profession) {
-  if (!caseToken) throw new Error('请先设置 Case Token');
-  return callCozeWorkflow(WORKFLOW_IDS.generateCase, { profession }, caseToken);
-}
-
-export async function fetchResultWithImage(profession, caseDesc, selectedOption) {
-  if (!roleToken) throw new Error('请先设置 Role Token');
-  return callCozeWorkflow(WORKFLOW_IDS.generateResult, {
+export async function fetchMultiRoundCase(profession) {
+  if (!multiRoundToken) throw new Error('请先设置 Multi Round Token');
+  return callCozeWorkflow(WORKFLOW_IDS.multiRoundCase, {
     profession,
-    case: caseDesc,
-    option: selectedOption
-  }, roleToken);
+    history: [],
+    is_custom: false,
+    round: 1
+  }, multiRoundToken);
+}
+
+export async function resumeMultiRoundCase(eventId, resumeData, interruptType) {
+  if (!multiRoundToken) throw new Error('请先设置 Multi Round Token');
+  return resumeCozeWorkflow(
+    WORKFLOW_IDS.multiRoundCase,
+    eventId,
+    resumeData,
+    interruptType,
+    multiRoundToken
+  );
 }

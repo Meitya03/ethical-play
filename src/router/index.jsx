@@ -4,6 +4,7 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import Home from '../pages/Home/index';
 import SelectRole from '../pages/SelectRole/index';
 import EthicalCase from '../pages/EthicalCase/index.jsx';
+import MutiRound from '../pages/mutiRound/index.jsx';
 import NotFound from '../pages/NotFound/index';
 
 // 1. 创建路由规则
@@ -19,6 +20,10 @@ const router = createBrowserRouter([
   {
     path: '/ethical-case',
     element: <EthicalCase />
+  },
+  {
+    path: '/muti-round',
+    element: <MutiRound />
   },
   {
     path: '*',

@@ -223,9 +223,9 @@ const SelectRole: React.FC = () => {
         <div className="navigation-buttons" ref={navigationButtonsRef}>
           <button
             className="nav-btn ai-btn"
-            onClick={() => navigate('/ethical-case', { state: { profession: selectedRole } })}
+            onClick={() => navigate(`/muti-round?profession=${encodeURIComponent(selectedRole)}`)}
           >
-            进入AI生成案例
+            进入多轮分支故事
           </button>
         </div>
       )}

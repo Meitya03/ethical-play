@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { fetchCaseAndOptions, fetchResultWithImage, setCozeTokens } from '../../api/ai';
+import { setCozeTokens, fetchMultiRoundCase, resumeMultiRoundCase } from '../../api/ai';
 import ProfessionSelect from '../../components/ProfessionSelect';
 import CaseDisplay from '../../components/CaseDisplay';
 import ResultDisplay from '../../components/ResultDisplay';
@@ -16,15 +16,19 @@ function EthicalCase() {
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [multiRoundState, setMultiRoundState] = useState({
+    eventId: null,
+    interruptType: null,
+    currentStep: 0
+  });
 
   // 初始化 token（从环境变量读取）
   useEffect(() => {
-    const caseToken = import.meta.env.VITE_COZE_CASE_TOKEN;
-    const roleToken = import.meta.env.VITE_COZE_ROLE_TOKEN;
-    if (caseToken && roleToken) {
-      setCozeTokens(caseToken, roleToken);
+    const multiRoundToken = import.meta.env.VITE_COZE_MULTI_ROUND_TOKEN;
+    if (multiRoundToken) {
+      setCozeTokens(multiRoundToken);
     } else {
-      console.warn('未设置 Coze Token，请在 .env 文件中定义 VITE_COZE_CASE_TOKEN 和 VITE_COZE_ROLE_TOKEN');
+      console.warn('未设置 Coze Token，请在 .env 文件中定义 VITE_COZE_MULTI_ROUND_TOKEN');
     }
   }, []);
 
@@ -34,42 +38,37 @@ function EthicalCase() {
       const selectedProfession = location.state.profession;
       setProfession(selectedProfession);
       // 直接获取案例和选项
-      const fetchCase = async () => {
-        setLoading(true);
-        setError('');
-        try {
-          const data = await fetchCaseAndOptions(selectedProfession);
-          console.log('API返回的数据:', data);
-          console.log('options类型:', typeof data.options);
-          console.log('options值:', data.options);
-          setCurrentCase(data.case);
-          setOptions(data.options);
-        } catch (err) {
-          setError(err.message || '获取案例失败');
-        } finally {
-          setLoading(false);
-        }
-      };
-      fetchCase();
+      fetchCaseData(selectedProfession);
     }
   }, [location.state]);
 
-  const handleProfessionSelect = async (selected) => {
-    setProfession(selected);
+  const fetchCaseData = async (selectedProfession) => {
     setLoading(true);
     setError('');
     try {
-      const data = await fetchCaseAndOptions(selected);
-      console.log('API返回的数据:', data);
-      console.log('options类型:', typeof data.options);
-      console.log('options值:', data.options);
-      setCurrentCase(data.case);
+      // 只使用多轮工作流
+      const data = await fetchMultiRoundCase(selectedProfession);
+      console.log('多轮API返回的数据:', data);
+      setCurrentCase(data.case || data.message);
       setOptions(data.options);
+      if (data.event_id) {
+        setMultiRoundState(prev => ({
+          ...prev,
+          eventId: data.event_id,
+          interruptType: data.interrupt_type,
+          currentStep: 1
+        }));
+      }
     } catch (err) {
       setError(err.message || '获取案例失败');
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleProfessionSelect = async (selected) => {
+    setProfession(selected);
+    fetchCaseData(selected);
   };
 
   const handleOptionSelect = async (optionKey) => {
@@ -78,11 +77,37 @@ function EthicalCase() {
     setLoading(true);
     setError('');
     try {
-      const data = await fetchResultWithImage(profession, currentCase, optionKey);
-      setResult({
-        analysis: data.analysis,
-        imageUrl: data.image_url
-      });
+      // 只使用多轮工作流
+      if (multiRoundState.eventId) {
+        // 多轮模式：继续工作流
+        const data = await resumeMultiRoundCase(
+          multiRoundState.eventId,
+          optionKey,
+          multiRoundState.interruptType
+        );
+        console.log('多轮继续返回的数据:', data);
+
+        // 检查是否还有后续步骤
+        if (data.case || data.message) {
+          // 还有后续步骤
+          setCurrentCase(data.case || data.message);
+          setOptions(data.options);
+          if (data.event_id) {
+            setMultiRoundState(prev => ({
+              ...prev,
+              eventId: data.event_id,
+              interruptType: data.interrupt_type,
+              currentStep: prev.currentStep + 1
+            }));
+          }
+        } else {
+          // 工作流结束，显示结果
+          setResult({
+            analysis: data.analysis || data.result,
+            imageUrl: data.image_url
+          });
+        }
+      }
     } catch (err) {
       setError(err.message || '获取结果失败');
     } finally {
@@ -96,6 +121,11 @@ function EthicalCase() {
     setOptions(null);
     setResult(null);
     setError('');
+    setMultiRoundState({
+      eventId: null,
+      interruptType: null,
+      currentStep: 0
+    });
     navigate('/select-role');
   };
 

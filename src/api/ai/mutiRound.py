@@ -7,7 +7,13 @@ import os
 from cozepy import COZE_CN_BASE_URL
 
 # Get an access_token through personal access token or oauth.
-coze_api_token = 'cztei_heq6hyLThuK87kg26zIwMcdxnMKIzG8qkMeUvlXk0TmcgFXGC6SuXHEr3PrrLeC5n'
+# Load token from .env file
+coze_api_token = ''
+with open('.env', 'r') as f:
+    for line in f:
+        if line.startswith('VITE_COZE_MULTI_ROUND_TOKEN='):
+            coze_api_token = line.strip().split('=')[1]
+            break
 # The default access is api.coze.com, but if you need to access api.coze.cn,
 # please use base_url to configure the api endpoint to access
 coze_api_base = COZE_CN_BASE_URL
@@ -18,7 +24,7 @@ from cozepy import Coze, TokenAuth, Stream, WorkflowEvent, WorkflowEventType  # 
 coze = Coze(auth=TokenAuth(token=coze_api_token), base_url=coze_api_base)
 
 # Create a workflow instance in Coze, copy the last number from the web link as the workflow's ID.
-workflow_id = '7616685426078744618'
+workflow_id = '7619582633346777140'
 
 
 # The stream interface will return an iterator of WorkflowEvent. Developers should iterate
