@@ -134,7 +134,7 @@
 <script>
     // ========== 配置 ==========
     // ⚠️ 请替换为你的真实值
-    const COZE_TOKEN = 'cztei_qo2wRbXWPIXjslSPTqmAJBz46g82lbtT2kWd5mMq3zt8H3cAt6Z6OOTxS5USFRKWD';
+    const COZE_TOKEN = 'cztei_hdWXovlo8q7GPwAqcCOpdv4EZrMGSc0yr2er0FcqOUppRCCo2PDXKGaple3eEAG9d';
     const WORKFLOW_ID = '7619582633346777140';               // 替换
     const IMAGE_PLUGIN_ID = '';     // 替换（可选，如果不需要图片可置空）
 
@@ -267,7 +267,38 @@
             for (const [key, text] of Object.entries(options)) {
                 const btn = document.createElement('button');
                 btn.innerText = `${key}. ${text}`;
+                btn.style.cssText = `
+                    padding: 10px 15px;
+                    background: #3498db;
+                    color: white;
+                    border: none;
+                    border-radius: 5px;
+                    cursor: pointer;
+                    transition: all 0.3s ease;
+                    margin: 5px;
+                `;
                 btn.onclick = () => onOptionSelect(key, false, text);
+                // 添加鼠标悬停效果
+                btn.onmouseover = () => {
+                    btn.style.backgroundColor = '#2980b9';
+                    btn.style.transform = 'translateY(-2px)';
+                    btn.style.boxShadow = '0 2px 5px rgba(0,0,0,0.2)';
+                };
+                // 添加鼠标离开效果
+                btn.onmouseout = () => {
+                    btn.style.backgroundColor = '#3498db';
+                    btn.style.transform = 'translateY(0)';
+                    btn.style.boxShadow = 'none';
+                };
+                // 添加点击效果
+                btn.onmousedown = () => {
+                    btn.style.transform = 'translateY(0)';
+                    btn.style.boxShadow = 'none';
+                };
+                btn.onmouseup = () => {
+                    btn.style.transform = 'translateY(-2px)';
+                    btn.style.boxShadow = '0 2px 5px rgba(0,0,0,0.2)';
+                };
                 optionsDiv.appendChild(btn);
             }
         } else {
@@ -280,11 +311,39 @@
     }
 
     function displayAnalysis(analysis) {
+        // 隐藏第五轮的情景
+        document.getElementById('scenario').style.display = 'none';
+        
         const analysisDiv = document.getElementById('analysis');
         analysisDiv.innerHTML = analysis;
         analysisDiv.style.display = 'block';
         document.getElementById('options').innerHTML = '';
         document.getElementById('customOption').style.display = 'none';
+        
+        // 添加返回角色选择界面按钮
+        const optionsDiv = document.getElementById('options');
+        const backButton = document.createElement('button');
+        backButton.innerText = '返回角色选择';
+        backButton.style.cssText = `
+            padding: 10px 20px;
+            background: #95a5a6;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: background-color 0.3s ease;
+        `;
+        backButton.onclick = () => {
+            window.location.href = '/select-role';
+        };
+        backButton.onmouseover = () => {
+            backButton.style.backgroundColor = '#7f8c8d';
+        };
+        backButton.onmouseout = () => {
+            backButton.style.backgroundColor = '#95a5a6';
+        };
+        optionsDiv.appendChild(backButton);
     }
 
     async function fetchAndShowImage(prompt) {
