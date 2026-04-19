@@ -1,6 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import gsap from 'gsap';
 import { setCozeTokens, fetchMultiRoundCase, resumeMultiRoundCase } from '../../api/ai';
+import { saveHistory } from '../../utils/history';
+import { useAuth } from '../../context/AuthContext';
 import ProfessionSelect from '../../components/ProfessionSelect';
 import CaseDisplay from '../../components/CaseDisplay';
 import ResultDisplay from '../../components/ResultDisplay';
@@ -10,6 +13,8 @@ import './EthicalCase.css';
 function EthicalCase() {
   const location = useLocation();
   const navigate = useNavigate();
+  const { user, logout } = useAuth();
+  const containerRef = useRef(null);
   const [profession, setProfession] = useState('');
   const [currentCase, setCurrentCase] = useState(null);
   const [options, setOptions] = useState(null);
@@ -21,6 +26,16 @@ function EthicalCase() {
     interruptType: null,
     currentStep: 0
   });
+
+  // 状态切换动画
+  useEffect(() => {
+    if (containerRef.current) {
+      gsap.fromTo(containerRef.current.children,
+        { opacity: 0, y: 20 },
+        { opacity: 1, y: 0, duration: 0.6, stagger: 0.2, ease: 'power2.out' }
+      );
+    }
+  }, [profession, currentCase, result]);
 
   // 初始化 token（从环境变量读取）
   useEffect(() => {
@@ -102,9 +117,20 @@ function EthicalCase() {
           }
         } else {
           // 工作流结束，显示结果
+          const analysis = data.analysis || data.result;
+          const imageUrl = data.image_url;
+
           setResult({
-            analysis: data.analysis || data.result,
-            imageUrl: data.image_url
+            analysis,
+            imageUrl
+          });
+
+          // 保存到历史记录
+          saveHistory({
+            profession,
+            caseText: currentCase,
+            analysis,
+            imageUrl
           });
         }
       }
@@ -130,10 +156,15 @@ function EthicalCase() {
   };
 
   return (
-    <div className="ethical-case">
+    <div className="ethical-case" ref={containerRef}>
+      <div className="top-right-actions">
+        {user && <span className="user-info">你好, {user.username}</span>}
+        <button onClick={() => navigate('/history')} className="history-btn">历史足迹</button>
+        <button onClick={logout} className="logout-btn">退出登录</button>
+      </div>
       <header>
         <h1>AI 伦理情景模拟</h1>
-        <p>通过 AI 生成真实伦理困境，探索不同选择的后果</p>
+        <p>探索工程实践中的道德抉择，通过 AI 预见未来的社会责任</p>
       </header>
 
       <LoadingError loading={loading} error={error} />

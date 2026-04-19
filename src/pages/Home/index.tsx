@@ -1,6 +1,7 @@
 import { useLayoutEffect, useRef } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import gsap from 'gsap';
+import { useAuth } from '../../context/AuthContext';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Lenis from '@studio-freight/lenis';
 import img1 from '../../assets/1.jpg';
@@ -17,6 +18,8 @@ gsap.registerPlugin(ScrollTrigger);
 const Home = () => {
   const stickyCardsRef = useRef<HTMLDivElement>(null);
   const outroRef = useRef<HTMLDivElement>(null);
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
 
   useLayoutEffect(() => {
     // 初始化 Lenis 平滑滚动
@@ -165,6 +168,22 @@ const Home = () => {
 
   return (
     <div className="home-page">
+      <nav className="top-nav">
+        <div className="logo">Ethical Play</div>
+        <div className="nav-user">
+          {user ? (
+            <>
+              {user.role === 'admin' && (
+                <Link to="/admin" className="admin-link" style={{ marginRight: '1rem', color: '#7c3aed', fontWeight: 'bold' }}>管理后台</Link>
+              )}
+              <span className="username">你好, {user.username}</span>
+              <button onClick={logout} className="logout-btn">退出</button>
+            </>
+          ) : (
+            <Link to="/login" className="login-link">登录</Link>
+          )}
+        </div>
+      </nav>
       <DissolveEffect
         imageSrc={img5}
         title="Ethical Play"
@@ -230,13 +249,15 @@ const Home = () => {
       </section>
 
       <section className="outro" ref={outroRef}>
-        <h1>理论认知终需落地实践，真正的工程伦理决策，藏在每一次具体的选择里。
-    进入真实案例场景，用你的判断定义技术向善的边界。</h1>
-    <div className="buttons">
-      <Link to="/select-role" className="jump-btn ai-btn">
-        开始AI伦理案例
-      </Link>
-    </div>
+        <h1>工程伦理不仅仅是规则，<br />更是对未来的承诺。</h1>
+        <div className="buttons">
+          <Link to="/select-role" className="ai-btn">
+            <span>开始伦理挑战</span>
+          </Link>
+          <Link to="/history" className="ai-btn history-btn">
+            <span>查看伦理足迹</span>
+          </Link>
+        </div>
       </section>
     </div>
   );

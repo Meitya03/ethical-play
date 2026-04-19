@@ -7,8 +7,28 @@ export default defineConfig({
   plugins: [react()],
   resolve: {
     alias: {
-      // 改用相对项目根目录的路径，跨平台兼容
       '@': fileURLToPath(new URL('./src', import.meta.url))
+    }
+  },
+  server: {
+    proxy: {
+      '/api': {
+        target: 'http://localhost:5999',
+        changeOrigin: true,
+        // 如果后端服务不稳定，可以尝试 127.0.0.1
+        // target: 'http://127.0.0.1:5999',
+        configure: (proxy, options) => {
+          proxy.on('error', (err, req, res) => {
+            console.log('Proxy Error:', err);
+          });
+          proxy.on('proxyReq', (proxyReq, req, res) => {
+            console.log('Sending Request to Target:', req.method, req.url);
+          });
+          proxy.on('proxyRes', (proxyRes, req, res) => {
+            console.log('Received Response from Target:', proxyRes.statusCode, req.url);
+          });
+        }
+      }
     }
   }
 })
